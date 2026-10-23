@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nomad Lantern: find your way anywhere</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Fraunces:wght@600;800&display=swap">
+<style>
+:root{--bg:#fff;--fg:#222;--mut:#6a6a6a;--line:#ddd;--card:#fff;--acc:#e8590c;--chip:#f3f3f3;--warn:#c62828;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141414;--fg:#f2f2f2;--mut:#a0a0a0;--line:#333;--card:#1c1c1c;--chip:#262626;--warn:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141414;--fg:#f2f2f2;--mut:#a0a0a0;--line:#333;--card:#1c1c1c;--chip:#262626;--warn:#ff8a80;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 "Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+button,select,input,textarea{font:inherit;color:inherit}
+h1,h2,h3{margin:0;line-height:1.15}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;border-bottom:1px solid var(--line)}
+.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:12px 24px;max-width:1360px;margin:auto}
+.logo{font-weight:800;font-size:22px;color:var(--acc);border:0;background:none;cursor:pointer;justify-self:start;white-space:nowrap}
+.tabs{display:flex;gap:2px;overflow-x:auto}
+.tabs button{border:0;background:none;color:var(--mut);font-weight:600;padding:8px 12px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button.on{color:var(--fg);border-color:var(--fg)}
+.right{display:flex;justify-content:flex-end;gap:8px}
+.right button,.pill{border:1px solid var(--line);background:none;border-radius:20px;padding:8px 14px;cursor:pointer;font-weight:600}
+.bar{display:flex;max-width:760px;margin:0 auto 14px;border:1px solid var(--line);border-radius:44px;background:var(--card);box-shadow:0 3px 12px rgba(0,0,0,.1);padding:6px 6px 6px 0}
+.bar>div{flex:1;padding:6px 22px;border-right:1px solid var(--line);min-width:0}
+.bar>div:nth-child(3){border:0}
+.bar label{display:block;font-size:12px;font-weight:800}
+.bar input,.bar select{width:100%;border:0;background:none;padding:0;outline:0}
+.go{border:0;background:var(--acc);color:#fff;width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.card:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+main{max-width:1360px;margin:auto;padding:8px 24px 48px}
+.sh{display:flex;align-items:center;justify-content:space-between;margin:26px 0 12px}
+.sh h2{font-size:21px}
+.sh small{display:block;color:var(--mut);font-weight:400;font-size:14px}
+.arrows button{border:1px solid var(--line);background:var(--card);width:32px;height:32px;border-radius:50%;cursor:pointer;margin-left:6px}
+.rail{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:6px}
+.rail>*{scroll-snap-align:start;flex:none}
+.dest{width:160px;text-align:left;border:0;background:none;padding:0;cursor:pointer}
+.dest .ph{height:160px;font-size:48px}
+.dest b{display:block;margin-top:7px}
+.card{width:230px;cursor:pointer;text-align:left;border:0;background:none;padding:0}
+.ph{position:relative;border-radius:18px;display:grid;place-items:center;aspect-ratio:1;font-size:58px}
+.heart{position:absolute;top:10px;right:10px;border:0;background:rgba(0,0,0,.35);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer}
+.heart.on{background:var(--acc)}
+.tag{position:absolute;top:10px;left:10px;background:var(--card);color:var(--fg);font-size:12px;font-weight:700;padding:4px 10px;border-radius:14px}
+.card b{display:block;margin-top:8px;font-size:14px}
+.sub{color:var(--mut);font-size:13px}
+.badge{background:var(--chip);border-radius:12px;padding:2px 9px;font-size:12px}
+.badge.sp{background:var(--acc);color:#fff;font-weight:700}
+.btn{border:0;background:var(--acc);color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;cursor:pointer}
+.btn.alt{background:var(--chip);color:var(--fg)}
+.btn.sm{padding:6px 12px;font-size:13px}
+.btn:disabled{opacity:.5}
+.two{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;margin-top:18px}
+.box{border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:16px;background:var(--card)}
+.box h3{font-size:19px;margin-bottom:10px}
+.rec{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.rec:first-of-type{border-top:0}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f label{display:grid;gap:4px;font-size:13px;font-weight:700}
+.f .w{grid-column:1/-1}
+input,select,textarea{padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--card);width:100%}
+.it{display:flex;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.it .t{flex:1;min-width:0}
+.it button{border:1px solid var(--line);background:none;border-radius:8px;cursor:pointer;padding:2px 8px}
+.day{font-weight:800;margin:14px 0 4px}
+.meter{height:10px;border-radius:6px;background:var(--chip);overflow:hidden;margin:8px 0}
+.meter div{height:100%;background:#2e7d32}
+.meter.over div{background:var(--warn)}
+.row{display:flex;justify-content:space-between;padding:3px 0}
+.warn{color:var(--warn);font-weight:700}
+.note{font-size:12px;color:var(--mut);margin-top:8px}
+.empty{text-align:center;color:var(--mut);padding:50px 10px}
+a{color:var(--acc)}
+dialog{border:0;border-radius:20px;padding:0;width:min(520px,94vw);background:var(--bg);color:var(--fg)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.mh{height:180px;display:grid;place-items:center;font-size:80px}
+.mbd{padding:20px;display:grid;gap:10px}
+.close{position:absolute;top:12px;left:12px;border:0;background:var(--card);color:var(--fg);width:34px;height:34px;border-radius:50%;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:12px 20px;border-radius:12px;z-index:20;display:none}
+@media(max-width:800px){.top{grid-template-columns:1fr auto}.tabs{grid-column:1/-1;order:3}.bar{flex-wrap:wrap;border-radius:22px;margin:0 16px 12px}.bar>div{flex-basis:50%;border:0;padding:6px 16px}.bar>div:first-child{flex-basis:100%}.two{grid-template-columns:1fr}main{padding:8px 16px 40px}.f{grid-template-columns:1fr}}
+body{font-family:"DM Sans",system-ui,sans-serif}
+h1,h2,h3,.logo,.card b,.dest b{font-family:Fraunces,Georgia,serif}
+.bar{border-radius:14px;box-shadow:none;border:2px solid var(--fg);padding:4px 4px 4px 0}
+.bar>div{padding:4px 18px}
+.bar label{font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:10px;color:var(--mut)}
+.go{border-radius:10px;width:auto;padding:0 20px;height:42px;font-size:15px;font-weight:700}
+.ph{border-radius:8px;aspect-ratio:4/5}
+.card{width:210px}
+.dest{width:150px}
+.dest .ph{height:190px;aspect-ratio:auto}
+.heart{border-radius:8px}
+.tag{border-radius:6px;text-transform:uppercase;font-size:10px;letter-spacing:.05em}
+.box{border-radius:10px}
+.btn{border-radius:8px}
+.tabs button.on{border-color:var(--acc)}
+.hero2{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center;margin:22px 0 4px}
+.hero2 h1{font-size:clamp(30px,5vw,50px);letter-spacing:-.02em}
+.mini{border:2px solid var(--fg);border-radius:10px;padding:14px;background:var(--card)}
+@media(max-width:800px){.hero2{grid-template-columns:1fr}}
+.right button{white-space:nowrap;padding:8px 12px}
+.heart{font-size:16px;line-height:1}
+.hero3{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 12px}
+.hero3 h1{font-size:clamp(22px,4vw,34px);letter-spacing:-.02em}
+.roll{overflow:hidden;margin:8px -24px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.rt{display:flex;gap:10px;width:max-content;animation:roll 60s linear infinite}
+.roll.rev .rt{animation-direction:reverse;animation-duration:70s}
+.roll:hover .rt,.roll:focus-within .rt,.roll:active .rt{animation-play-state:paused}
+@keyframes roll{to{transform:translateX(-50%)}}
+.tk{display:flex;gap:10px;align-items:center;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 14px 8px 8px;cursor:pointer;text-align:left;white-space:nowrap}
+.tk .e{width:38px;height:38px;border-radius:8px;display:grid;place-items:center;font-size:20px}
+.tk b{display:block;font-family:Fraunces,Georgia,serif}
+.tk small{color:var(--mut);font-size:12px}
+.rl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:700}
+@media(max-width:800px){.roll{margin:8px -16px}}
+@media(prefers-reduced-motion:reduce){.rt{animation:none}.roll{overflow-x:auto}}
+.right{position:relative}
+.mn{position:absolute;right:0;top:46px;z-index:20;min-width:170px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:2px}
+.mn[hidden]{display:none}
+.mn button{border:0;text-align:left;border-radius:8px;width:100%}
+.mn button:hover{background:var(--chip)}
+.dest .sub{display:block;line-height:1.35;margin-top:2px}.dest b{display:block;margin-top:8px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.dest.dc,.card.sc{position:relative;width:auto;aspect-ratio:4/3;border-radius:16px;overflow:hidden;color:#fff;display:flex;flex-direction:column;justify-content:space-between;padding:12px;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.15);transition:transform .15s}
+.dest.dc:hover,.card.sc:hover{transform:translateY(-3px)}
+.dest.dc::after,.card.sc::after{content:"";position:absolute;inset:auto 0 0 0;height:60%;background:linear-gradient(180deg,transparent,rgba(0,0,0,.6));pointer-events:none}
+.dest.dc>*,.card.sc>*{position:relative;z-index:1}
+.dc-e{position:absolute!important;inset:0;display:grid;place-items:center;font-size:64px;opacity:.9;z-index:0!important;margin-bottom:24px}
+.dc-top,.dc-bot{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;z-index:2!important}
+.dc-top{align-items:flex-start}
+.dc-tags{display:flex;gap:6px;flex-wrap:wrap}
+.dc i{font-style:normal;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.38);backdrop-filter:blur(4px);white-space:nowrap}
+.dc i.dc-good{background:#f2b632;color:#1b1b1b}
+.dc strong{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.1;display:block;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.dc small{display:block;font-size:12px;opacity:.92;margin-top:2px}
+.dc-p{text-align:right}.dc-p strong{font-size:17px}.dc-p em{font-style:normal;font-size:12px;font-weight:600;opacity:.9}
+@media(max-width:560px){.dgrid{grid-template-columns:repeat(2,1fr);gap:10px}.dc strong{font-size:17px}.dc-p strong{font-size:14px}.dc-tags i:nth-child(2){display:none}}
+.card.sc{width:290px;flex:none;border:0;cursor:pointer}.card.sc .heart{z-index:4}.dc i.dc-str{background:rgba(255,255,255,.28)}@media(max-width:560px){.card.sc{width:230px}}
+.dc-p{flex:none;white-space:nowrap}.dc-p strong{white-space:nowrap}.card.sc{width:310px}
+.ac-wrap{margin:18px 0 4px}.ac-h{display:block;font-size:13px;margin-bottom:8px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}.ac-row{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:thin}.ac{flex:none;border:1px solid var(--line);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:999px;font:600 14px "DM Sans",system-ui,sans-serif;cursor:pointer;white-space:nowrap}.ac small{opacity:.6;margin-left:2px}.ac.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}button.ac:hover{border-color:var(--fg)}span.ac{cursor:default}
+.top{grid-template-columns:1fr auto!important}.tabs{grid-column:1/-1!important;order:3;gap:4px!important;justify-content:flex-start;scrollbar-width:none;padding:2px 0 0;-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent);mask-image:linear-gradient(90deg,#000 94%,transparent)}.tabs::-webkit-scrollbar{display:none}.tabs button{display:flex!important;flex-direction:column;align-items:center;gap:2px;padding:6px 14px 8px!important;font-size:12.5px}.tabs button span{font-size:22px;line-height:1.1;filter:grayscale(.55);opacity:.8}.tabs button.on span,.tabs button:hover span{filter:none;opacity:1}.tabs button:hover{border-color:var(--line)}
+.dest.dc,.card.sc{align-items:stretch!important}.dc-top,.dc-bot{width:100%;box-sizing:border-box}.dc-bot>span:first-child{min-width:0}
+.dc-r{display:flex;gap:6px;align-items:center}.dc-chat{width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.4);display:grid;place-items:center;font-size:14px;cursor:pointer;backdrop-filter:blur(4px)}.dc-chat:hover{background:rgba(0,0,0,.65)}
+.lnkbtn{background:none;border:0;font-weight:700;text-decoration:underline;cursor:pointer;color:var(--fg);padding:10px 8px;font-size:15px}
+.bar{border:1px solid var(--line);box-shadow:0 2px 12px rgba(0,0,0,.08);border-radius:999px;padding:6px 6px 6px 10px;max-width:680px}
+.bar>div:nth-child(2){border:0;flex:1.3}#bc{width:auto;flex:none;font-weight:700;font-size:14px;padding:0}#bd{min-width:0}
+@media(max-width:800px){.bar{border-radius:22px}.bar>div,.bar>div:first-child{flex-basis:100%;border:0}.go{width:100%;margin:6px}}
+.right{display:flex;align-items:center;gap:8px;position:relative}#bell{position:relative;font-size:18px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);cursor:pointer}#bn{position:absolute;top:-5px;right:-5px;background:var(--acc);color:#fff;border-radius:999px;font:700 11px "DM Sans",sans-serif;min-width:18px;height:18px;line-height:18px;text-align:center}
+.np{position:absolute;right:0;top:calc(100% + 8px);width:min(340px,88vw);background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.2);z-index:70;max-height:70vh;overflow:auto}.nph{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--line)}.nph button{background:none;border:0;cursor:pointer;color:var(--acc);font-weight:700}.ni{padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px}.ni small{display:block;color:var(--mut);margin-top:2px}.ni.new{background:rgba(236,91,19,.09)}
+.pk{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:14px 0 16px}.pk>div{border:1px solid var(--line);border-radius:12px;padding:14px 16px}.pk b{display:block;font-size:16px;margin-bottom:4px}.pk small{display:block;color:var(--mut);line-height:1.4}
+</style>
+</head>
+<body>
+<header>
+  <div class="top"><button class="logo" data-a="go" data-x="home">🏮 nomad lantern</button><nav class="tabs" id="tabs" aria-label="Activities"></nav><div class="right"><button data-a="bell" id="bell" aria-label="Notifications" aria-expanded="false" aria-haspopup="true">🔔<span id="bn" hidden></span></button><div class="np" id="np" hidden></div><button data-a="menu" id="mb" aria-expanded="false" aria-haspopup="true">Menu &#9776;</button><div class="mn" id="mn" hidden><button data-a="go" data-x="admin" id="adm" style="display:none">Admin</button><button data-a="go" data-x="compare">Compare</button><button data-a="go" data-x="trips" id="nt">My Trips</button><button data-a="theme">Theme</button></div></div></div>
+  <div class="bar" id="bar"><div><label for="q">Going to</label><input id="q" list="cl" placeholder="City or activity" autocomplete="off"><datalist id="cl"></datalist></div><div><label for="bd">Monthly budget</label><div style="display:flex;gap:8px;align-items:center"><select id="bc" aria-label="Currency"><option>USD</option><option>EUR</option><option>GBP</option><option>NGN</option></select><input id="bd" type="number" min="0" inputmode="numeric" placeholder="e.g. 2000"></div></div><button class="go" data-a="search">Find</button></div>
+</header>
+<main id="app"></main>
+<dialog id="dlg"></dialog><div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s),E=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const RT={USD:1,EUR:.92,GBP:.79,NGN:1500},SY={USD:"$",EUR:"€",GBP:"£",NGN:"₦"};const money=u=>SY[S.cur]+Math.round(u*RT[S.cur]).toLocaleString("en-US");
+const P=[["all","All","🏮"],["remote","Remote work","💻"],["sports","Sports & events","🏟️"],["business","Business","💼"],["adventure","Adventure","🧗"],["leisure","Leisure","🌴"],["other","Other","🧭"]];
+const pl=k=>(P.find(p=>p[0]===k)||[,"Other"])[1],pe=k=>(P.find(p=>p[0]===k)||[,,"🧭"])[2];
+const D=[
+{id:"lagos",n:"Lagos",c:"Nigeria",e:"🎶",g:["#8e2de2","#4a00e0"],cost:70,w:"Hot and humid, rainy season Apr to Oct",tg:["remote","business","leisure"],why:"Africa’s biggest business and music hub, with growing coworking spaces.",s:[["Victoria Island Serviced Apartment",95,"Power backup, Wi-Fi"],["Lekki Guesthouse",60,"Quiet, near coworking"]],a:[["Coworking day pass, Yaba",12,"remote"],["Lekki Conservation walk",10,"leisure"]]},
+{id:"accra",n:"Accra",c:"Ghana",e:"🏖️",g:["#11998e","#38ef7d"],cost:65,w:"Warm all year, main rains Apr to Jun",tg:["remote","leisure","sports"],why:"Relaxed, English speaking, with beaches and a lively café scene.",s:[["Osu Apartment",70,"Wi-Fi, walkable cafés"],["Airport Residential Suite",90,"Business district"]],a:[["Labadi beach afternoon",5,"leisure"],["Stadium tour",15,"sports"]]},
+{id:"lisbon",n:"Lisbon",c:"Portugal",e:"🚋",g:["#f2994a","#eb5757"],cost:85,w:"Mild year round, hot dry summers",tg:["remote","leisure","adventure"],why:"Strong coworking scene, walkable, big nomad community.",s:[["Alfama Co-living Loft",78,"Wi-Fi, monthly rates"],["Baixa Boutique Hotel",120,"Central, near metro"]],a:[["Coworking day pass",20,"remote"],["Sintra day trip",45,"adventure"]]},
+{id:"capetown",n:"Cape Town",c:"South Africa",e:"⛰️",g:["#2193b0","#6dd5ed"],cost:90,w:"Dry summers, mild wet winters (Jun to Aug)",tg:["adventure","remote","sports","leisure"],why:"Mountains, ocean and a mature remote work community.",s:[["Gardens Studio",85,"Mountain view, Wi-Fi"],["Waterfront Hotel",150,"Central, secure"]],a:[["Table Mountain hike",0,"adventure"],["Cape Peninsula tour",60,"leisure"]]},
+{id:"nairobi",n:"Nairobi",c:"Kenya",e:"🦒",g:["#56ab2f","#a8e063"],cost:60,w:"Mild, two rainy seasons",tg:["business","adventure","remote"],why:"East Africa’s startup hub, with a national park inside the city.",s:[["Westlands Apartment",65,"Wi-Fi, near cafés"],["Karen Garden Cottage",110,"Quiet, near the park"]],a:[["National Park safari",55,"adventure"],["Westlands coworking pass",10,"remote"]]},
+{id:"london",n:"London",c:"United Kingdom",e:"🎡",g:["#c0392b","#2c3e50"],cost:150,w:"Cool and changeable year round",tg:["business","sports","leisure"],why:"Major events, venues and meetings, with excellent transport.",s:[["Stratford Aparthotel",160,"Near Olympic Park venues"],["Shoreditch Hotel",190,"Tech district"]],a:[["Wimbledon grounds tour",35,"sports"],["Thames walk and museums",0,"leisure"]]},
+{id:"bangkok",n:"Bangkok",c:"Thailand",e:"🛺",g:["#ff9966","#ff5e62"],cost:55,w:"Hot, rainy season May to Oct",tg:["remote","leisure","adventure"],why:"Low costs, fast internet and great food for longer stays.",s:[["Ari Condo",45,"Wi-Fi, long stays"],["Sukhumvit Hotel",80,"Skytrain access"]],a:[["Muay Thai class",20,"sports"],["Street food tour",30,"leisure"]]},
+{id:"kigali",n:"Kigali",c:"Rwanda",e:"🌿",g:["#1d976c","#93f9b9"],cost:55,w:"Mild, driest Jun to Sep",tg:["remote","business","adventure"],why:"Clean, calm and well connected, with day trips to forest and lakes.",s:[["Kimihurura Apartment",60,"Wi-Fi, quiet"],["Hill View Hotel",100,"Business area"]],a:[["Nyungwe day trip",70,"adventure"],["Memorial visit",0,"leisure"]]},
+{id:"marrakech",n:"Marrakech",c:"Morocco",e:"🕌",g:["#e65c00","#f9d423"],cost:60,w:"Hot dry summers, mild winters",tg:["leisure","adventure","remote"],why:"Markets, riads and desert day trips within easy reach.",s:[["Medina Riad Room",55,"Courtyard, breakfast"],["Gueliz Apartment",70,"Wi-Fi, cafés"]],a:[["Atlas Mountains day trip",45,"adventure"],["Medina food tour",30,"leisure"]]},
+{id:"cairo",n:"Cairo",c:"Egypt",e:"🔺",g:["#c79081","#dfa579"],cost:45,w:"Hot and dry, mild winters",tg:["leisure","business","adventure"],why:"Ancient sites, a huge city and low everyday costs.",s:[["Zamalek Apartment",50,"Quiet island, Wi-Fi"],["Giza View Hotel",85,"Near the pyramids"]],a:[["Pyramids guided visit",35,"leisure"],["Nile felucca ride",15,"leisure"]]},
+{id:"zanzibar",n:"Zanzibar",c:"Tanzania",e:"🐚",g:["#00c6ff","#0072ff"],cost:70,w:"Warm all year, long rains Mar to May",tg:["leisure","adventure","remote"],why:"Beaches, Stone Town and diving, with slow-paced stays.",s:[["Stone Town Guesthouse",60,"Central, breakfast"],["Nungwi Beach Bungalow",90,"Beachfront"]],a:[["Snorkelling trip",40,"adventure"],["Spice farm tour",25,"leisure"]]},
+{id:"dakar",n:"Dakar",c:"Senegal",e:"🥁",g:["#f12711","#f5af19"],cost:65,w:"Dry Nov to Jun, rains Jul to Oct",tg:["leisure","business","sports"],why:"A creative, surf-friendly coastal capital.",s:[["Almadies Apartment",70,"Wi-Fi, near beach"],["Plateau Hotel",95,"Business area"]],a:[["Gorée Island ferry",12,"leisure"],["Surf lesson",30,"sports"]]},
+{id:"abidjan",n:"Abidjan",c:"Côte d'Ivoire",e:"🌆",g:["#134e5e","#71b280"],cost:70,w:"Hot and humid, main rains May to Jul",tg:["business","remote","leisure"],why:"A fast-growing business hub with a strong food scene.",s:[["Cocody Apartment",65,"Wi-Fi, quiet"],["Plateau Hotel",110,"Central, business"]],a:[["Coworking day pass",12,"remote"],["Grand-Bassam day trip",30,"leisure"]]},
+{id:"barcelona",n:"Barcelona",c:"Spain",e:"⛪",g:["#ff512f","#dd2476"],cost:110,w:"Mild winters, hot summers",tg:["remote","leisure","sports"],why:"Beach, coworking and a big international crowd.",s:[["Gràcia Studio",95,"Wi-Fi, walkable"],["Eixample Hotel",140,"Central, metro"]],a:[["Coworking day pass",22,"remote"],["Camp Nou stadium tour",30,"sports"]]},
+{id:"mexicocity",n:"Mexico City",c:"Mexico",e:"🌮",g:["#11998e","#f7971e"],cost:70,w:"Mild, rainy season Jun to Sep",tg:["remote","business","leisure"],why:"Huge, creative and full of food, art and coworking.",s:[["Roma Norte Apartment",75,"Wi-Fi, cafés"],["Condesa Boutique Hotel",120,"Leafy, central"]],a:[["Coworking day pass",15,"remote"],["Street food tour",35,"leisure"]]},
+{id:"medellin",n:"Medellín",c:"Colombia",e:"🌺",g:["#56ab2f","#f9d423"],cost:60,w:"Spring-like all year",tg:["remote","leisure","adventure"],why:"Mild weather, a big nomad scene and good value.",s:[["Laureles Apartment",55,"Wi-Fi, long stays"],["El Poblado Hotel",85,"Central, nightlife"]],a:[["Guatapé day trip",40,"adventure"],["Coworking day pass",10,"remote"]]},
+{id:"bali",n:"Bali (Canggu)",c:"Indonesia",e:"🌴",g:["#00b09b","#96c93d"],cost:65,w:"Warm all year, rains Nov to Mar",tg:["remote","leisure","adventure"],why:"Surf, coworking and long stays in a relaxed setting.",s:[["Canggu Co-living Room",55,"Wi-Fi, pool"],["Villa near Berawa",95,"Private, quiet"]],a:[["Surf lesson",25,"adventure"],["Coworking day pass",12,"remote"]]},
+{id:"tbilisi",n:"Tbilisi",c:"Georgia",e:"🍷",g:["#8e2de2","#f093fb"],cost:50,w:"Hot summers, cold winters",tg:["remote","leisure","adventure"],why:"Low costs, easy entry rules and a growing remote community.",s:[["Sololaki Apartment",45,"Wi-Fi, old town"],["Vera Hotel",75,"Central, quiet"]],a:[["Kazbegi day trip",45,"adventure"],["Wine tasting",25,"leisure"]]},
+{id:"dubai",n:"Dubai",c:"United Arab Emirates",e:"🏙️",g:["#232526","#bdc3c7"],cost:130,w:"Very hot summers, warm winters",tg:["business","sports","leisure"],why:"Major events, business travel and a global flight hub.",s:[["Marina Apartment",120,"Pool, Wi-Fi"],["Downtown Hotel",180,"Central, metro"]],a:[["Desert safari",60,"adventure"],["Event venue tour",40,"sports"]]},
+{id:"istanbul",n:"Istanbul",c:"Türkiye",e:"🕍",g:["#cb2d3e","#ef473a"],cost:60,w:"Mild spring and autumn, hot summers",tg:["business","leisure","remote"],why:"History, food and a bridge between two continents.",s:[["Cihangir Apartment",60,"Wi-Fi, cafés"],["Sultanahmet Hotel",90,"Old city"]],a:[["Bosphorus cruise",20,"leisure"],["Coworking day pass",12,"remote"]]},
+{id:"tokyo",n:"Tokyo",c:"Japan",e:"🗼",g:["#ee0979","#ff6a00"],cost:120,w:"Hot humid summers, cool winters",tg:["business","leisure","sports"],why:"Efficient, safe and packed with events and food.",s:[["Shinjuku Studio",100,"Compact, Wi-Fi"],["Asakusa Hotel",130,"Near metro"]],a:[["Sumo or baseball match",45,"sports"],["Food tour",50,"leisure"]]},
+{id:"berlin",n:"Berlin",c:"Germany",e:"🐻",g:["#434343","#000000"],cost:100,w:"Cold winters, mild summers",tg:["remote","business","leisure"],why:"Startups, coworking and a big creative scene.",s:[["Kreuzberg Apartment",85,"Wi-Fi, cafés"],["Mitte Hotel",130,"Central"]],a:[["Coworking day pass",20,"remote"],["Museum Island visit",20,"leisure"]]},
+{id:"newyork",n:"New York",c:"United States",e:"🗽",g:["#1a2a6c","#b21f1f"],cost:180,w:"Hot summers, cold winters",tg:["business","sports","leisure"],why:"Business meetings, big events and endless things to do.",s:[["Brooklyn Studio",160,"Wi-Fi, subway"],["Midtown Hotel",250,"Central, business"]],a:[["Stadium event ticket",90,"sports"],["Museum visit",30,"leisure"]]},
+{id:"kualalumpur",n:"Kuala Lumpur",c:"Malaysia",e:"🌃",g:["#0f2027","#2c5364"],cost:50,w:"Warm and humid all year",tg:["remote","business","leisure"],why:"Low costs, fast internet and great food.",s:[["Bukit Bintang Condo",45,"Wi-Fi, pool"],["KLCC Hotel",85,"Central, metro"]],a:[["Coworking day pass",10,"remote"],["Batu Caves visit",5,"leisure"]]}
+];
+const ACT={surf:["Surfing","🏄"],hike:["Hiking & trails","🥾"],run:["Running","🏃"],climb:["Climbing","🧗"],dive:["Diving & snorkelling","🤿"],bike:["Cycling","🚴"],football:["Football","⚽"],safari:["Safari & wildlife","🦁"],yoga:["Yoga","🧘"],gym:["Gym & training","🏋️"],martial:["Martial arts","🥋"],food:["Food & cooking","🍜"],nightlife:["Music & nightlife","🎶"],culture:["Culture & history","🏛️"],beach:["Beaches","🏖️"],cowork:["Coworking","💻"],water:["Boats & watersports","🛶"],ski:["Skiing","⛷️"],golf:["Golf","⛳"],events:["Live events","🏟️"],art:["Art & design","🎨"],market:["Markets","🛍️"]};
+// Activities per destination. Add a key here or a new entry in ACT and the filter chips update by themselves.
+const K={lagos:["nightlife","food","beach","cowork","football","art","market"],accra:["beach","nightlife","food","football","cowork","culture","art"],lisbon:["surf","food","cowork","culture","bike","run","nightlife"],capetown:["surf","hike","run","climb","dive","food","bike","cowork"],nairobi:["safari","run","hike","cowork","food","nightlife","culture"],london:["football","culture","run","bike","nightlife","food","events","art","gym"],bangkok:["martial","food","nightlife","gym","cowork","culture","market"],kigali:["run","bike","hike","safari","cowork","culture","food"],marrakech:["hike","culture","market","food","yoga","golf"],cairo:["culture","food","market","dive","nightlife","art"],zanzibar:["dive","beach","water","culture","food","yoga","market"],dakar:["surf","football","nightlife","art","culture","food","beach"],abidjan:["beach","nightlife","food","art","football","cowork"],barcelona:["beach","bike","football","food","nightlife","culture","cowork","run","climb"],mexicocity:["food","art","culture","nightlife","run","cowork","market","football"],medellin:["hike","bike","food","nightlife","cowork","culture","run"],bali:["surf","yoga","dive","hike","cowork","beach","food","gym"],tbilisi:["hike","food","culture","nightlife","cowork","ski","climb"],dubai:["golf","beach","gym","events","food","nightlife","water","market"],istanbul:["culture","food","market","nightlife","football","water","art"],tokyo:["food","culture","run","martial","events","nightlife","golf","art"],berlin:["nightlife","art","bike","run","culture","food","cowork","climb"],newyork:["run","gym","events","art","food","nightlife","culture","bike"],kualalumpur:["food","hike","cowork","golf","climb","market","culture"]};
+const al=k=>ACT[k][0],ae=k=>ACT[k][1],actText=d=>K[d.id].map(al).join(" ");
+const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const BM={lagos:[11,12,1,2,3],accra:[12,1,2,3],lisbon:[4,5,6,9,10],capetown:[11,12,1,2,3],nairobi:[1,2,6,7,8,9,10],london:[5,6,7,8,9],bangkok:[11,12,1,2],kigali:[6,7,8,9],marrakech:[3,4,5,10,11],cairo:[10,11,12,1,2,3,4],zanzibar:[6,7,8,9,12,1,2],dakar:[11,12,1,2,3,4],abidjan:[12,1,2,3],barcelona:[5,6,9,10],mexicocity:[3,4,10,11],medellin:[12,1,2,7,8],bali:[5,6,7,8,9],tbilisi:[5,6,9,10],dubai:[11,12,1,2,3],istanbul:[4,5,9,10],tokyo:[3,4,10,11],berlin:[5,6,7,8,9],newyork:[5,6,9,10],kualalumpur:[1,2,6,7]};
+const SF={lagos:"nigeria",accra:"ghana",lisbon:"portugal",capetown:"south-africa",nairobi:"kenya",london:"united-kingdom",bangkok:"thailand",kigali:"rwanda",marrakech:"morocco",cairo:"egypt",zanzibar:"tanzania",dakar:"senegal",abidjan:"ivory-coast",barcelona:"spain",mexicocity:"mexico",medellin:"colombia",bali:"indonesia",tbilisi:"georgia",dubai:"united-arab-emirates",istanbul:"turkey",tokyo:"japan",berlin:"germany",newyork:"usa",kualalumpur:"malaysia"};
+let S={v:"home",d:null,t:null,pf:"all",city:"lagos",cd:null,pre:"",f:"",cmp:["lagos","accra"],mo:0,bud:0,qs:"",act:"",rsvp:{},cur:(navigator.language||"").endsWith("NG")?"NGN":"USD"};
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||d)}catch(e){return JSON.parse(d)}};
+let trips=ld("nl_trips","[]"),fav=ld("nl_fav","[]");
+const sv=()=>{try{localStorage.setItem("nl_trips",JSON.stringify(trips));localStorage.setItem("nl_fav",JSON.stringify(fav))}catch(e){}cloud()};
+const track=(n,p)=>{try{const a=ld("nl_ev","[]");a.push({n,p,t:Date.now()});localStorage.setItem("nl_ev",JSON.stringify(a.slice(-200)))}catch(e){}};
+const dd=id=>D.find(x=>x.id===id),cur=()=>trips.find(t=>t.id===S.t);
+const cv=(u,c)=>u*RT[c],m=(n,c)=>SY[c]+Math.round(n).toLocaleString();
+const dl=t=>{if(!t.s||!t.e||t.e<t.s)return[];const a=[],d=new Date(t.s),e=new Date(t.e);while(d<=e&&a.length<60){a.push(d.toISOString().slice(0,10));d.setUTCDate(d.getUTCDate()+1)}return a};
+const dn=x=>x==="u"?"Unscheduled":new Date(x+"T00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+const link=(n,k)=>`https://www.${k==="s"?"booking.com/searchresults.html?ss=":"getyourguide.com/s/?q="}${encodeURIComponent(n)}`;
+const toast=t=>{const e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(e.h);e.h=setTimeout(()=>e.style.display="none",2800)};
+const key=(x,k,i)=>x.id+"|"+k+"|"+i;
+const find=ky=>{const[a,k,i]=ky.split("|"),x=dd(a);return{x,k,r:(k==="s"?x.s:x.a)[i]}};
+const card=(x,k,i,pf)=>{const r=(k==="s"?x.s:x.a)[i],ky=key(x,k,i),em=k==="s"?"🛏️":pe(r[2]),tag=r[3]?"Sponsored":(k==="s"&&i===0)||(r[2]===pf)?"Lantern pick":"";
+  return `<div class="card" data-a="rec" data-x="${ky}" tabindex="0" role="button" aria-label="${E(r[0])}"><div class="ph" style="background:linear-gradient(135deg,${x.g[0]},${x.g[1]})">${em}${tag?`<span class="tag">${tag}</span>`:""}<button class="heart ${fav.includes(ky)?"on":""}" data-a="heart" data-x="${ky}" aria-label="Save">&#9829;</button></div><b>${E(r[0])}</b><span class="sub">${k==="s"?"$"+r[1]+" per night":r[1]?"$"+r[1]:"Free"} est. &#183; ${x.n}</span></div>`};
+const sec=(t,s,b,id)=>`<section><div class="sh"><h2>${t}<small>${s}</small></h2><div class="arrows"><button data-a="sc" data-x="${id}" data-d="-1" aria-label="Scroll left">&#8249;</button><button data-a="sc" data-x="${id}" data-d="1" aria-label="Scroll right">&#8250;</button></div></div><div class="rail" id="${id}">${b}</div></section>`;
+const IMG={/* add photo URLs by id, e.g. lagos:"https://..." */};
+const destCard=d=>{const mo=S.mo||new Date().getMonth()+1,good=BM[d.id].includes(mo),m=Math.round(d.cost*30/10)*10,bg=IMG[d.id]?`linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.65)),url(${IMG[d.id]}) center/cover`:`linear-gradient(135deg,${d.g[0]},${d.g[1]})`;
+  return `<button class="dest dc" data-a="dest" data-x="${d.id}" style="background:${bg}"><span class="dc-e">${IMG[d.id]?"":d.e}</span><span class="dc-top"><span class="dc-tags">${[...K[d.id]].sort((a,b)=>(b===S.act)-(a===S.act)).slice(0,(good||S.bud)?1:2).map(k=>`<i>${ae(k)} ${al(k)}</i>`).join("")}</span><span class="dc-r">${S.bud?`<i class="${d.cost*30<=S.bud?"dc-good":"dc-str"}">${d.cost*30<=S.bud?"Fits budget":money(d.cost*30-S.bud)+" over"}</i>`:good?`<i class="dc-good">Good in ${MN[mo-1]}</i>`:""}<span class="dc-chat" data-a="chat" data-x="${d.id}" role="button" tabindex="0" aria-label="Chat in ${E(d.n)}" title="Chat in ${E(d.n)}">💬</span></span></span><span class="dc-bot"><span><strong>${E(d.n)}</strong><small>${E(d.c)}</small></span><span class="dc-p"><strong>${money(m)}<em> / mo</em></strong><small>${money(d.cost)}/day est.</small></span></span></button>`};
+const stayCard=(x,k,i,pf)=>{const r=(k==="s"?x.s:x.a)[i],ky=key(x,k,i),em=k==="s"?"🛏️":pe(r[2]),tag=r[3]?"Sponsored":(k==="s"&&i===0)||(r[2]===pf)?"Lantern pick":"",pr=k==="s"?money(r[1])+"<em> / night</em>":(r[1]?money(r[1]):"Free");
+  return `<div class="card sc dc" data-a="rec" data-x="${ky}" tabindex="0" role="button" aria-label="${E(r[0])}" style="background:linear-gradient(135deg,${x.g[0]},${x.g[1]})"><span class="dc-e">${em}</span><span class="dc-top">${tag?`<i>${tag}</i>`:"<span></span>"}<button class="heart ${fav.includes(ky)?"on":""}" data-a="heart" data-x="${ky}" aria-label="Save">&#9829;</button></span><span class="dc-bot"><span><strong>${E(r[0])}</strong><small>${E(x.n)}, ${E(x.c)}</small></span><span class="dc-p"><strong>${pr}</strong><small>estimate</small></span></span></div>`};
+function home(){const pf=S.pf,x=dd(S.city),ds=D.filter(d=>(pf==="all"||d.tg.includes(pf))&&(!S.mo||BM[d.id].includes(S.mo))&&(!S.act||K[d.id].includes(S.act))&&(!S.qs||(d.n+" "+d.c+" "+d.why+" "+d.w+" "+d.tg.map(pl).join(" ")+" "+actText(d)).toLowerCase().includes(S.qs))).sort((a,b)=>S.bud?a.cost-b.cost:0),q=S.f;
+  const acts=x.a.map((r,i)=>[r,i]).sort((a,b)=>(b[0][2]===pf)-(a[0][2]===pf));
+  return `<div class="hero3"><h1>Plan the trip, not just the stay.</h1><div><button class="btn alt" data-a="new" style="border:1.5px solid var(--fg)">Start a trip plan</button> <button class="lnkbtn" data-a="go" data-x="compare">Compare</button></div></div>${roll()}<div class="box" style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>When to go</b><select id="mo" aria-label="Month" style="width:auto">${["Any month",...MN].map((m,i)=>`<option value="${i}" ${S.mo===i?"selected":""}>${m}</option>`).join("")}</select><span class="sub">Shows places with typically good conditions that month. Not a forecast.</span></div>`+`<section><div class="sh"><h2>Destinations for you<small>${S.act?"Best places for "+al(S.act).toLowerCase():"Curated places for every kind of trip"}</small></h2></div>${S.bud?`<p class="sub" style="margin:-4px 0 12px"><b>${ds.filter(d=>d.cost*30<=S.bud).length} of ${ds.length}</b> fit ${money(S.bud)} / month. ${ds.some(d=>d.cost*30<=S.bud)?"Cheapest first.":"Nothing fits yet, so these are the closest, cheapest first."}</p>`:""}<div class="dgrid" id="r1">${ds.map(destCard).join("")||`<div class="empty">Nothing matches.</div>`}</div></section>`+
+  sponsorRow()+
+  sec("Popular stays","Curated picks across destinations. Prices are estimates, not live rates.",ds.slice(0,14).map((d,j)=>stayCard(d,"s",j%2,pf)).join(""),"r2")+
+  sec("Things to do",pf==="all"?"Experiences and workspaces around the world":"Sorted for "+pl(pf),ds.slice(0,14).map((d,j)=>{const i=d.a.findIndex(r=>r[2]===pf);return stayCard(d,"a",i<0?j%2:i,pf)}).join(""),"r3")+
+  partnerBand()+
+  sec("Start planning","Turn any idea into an itinerary and a budget",`<button class="card" data-a="new"><div class="ph" style="background:linear-gradient(135deg,#f59e0b,#e8590c)">🏮</div><b>Plan a trip</b><span class="sub">No account needed</span></button>`+D.slice(0,6).map(d=>`<button class="card" data-a="new" data-x="${d.id}"><div class="ph" style="background:linear-gradient(135deg,${d.g[0]},${d.g[1]})">${d.e}</div><b>Plan ${d.n}</b><span class="sub">Add dates and a budget</span></button>`).join(""),"r4")+`<p class="note">Data source: ${SRC}. Costs are indicative estimates. Weather means typical seasonal conditions, not a forecast. Some links may earn us a commission.</p>`}
+function row(x,k,i,c,tid){const r=(k==="s"?x.s:x.a)[i];return `<div class="rec"><div><b>${E(r[0])}</b> <span class="badge ${r[3]?"sp":""}">${r[3]?"Sponsored":"Curated"}</span><div class="sub">${k==="s"?E(r[2]):pl(r[2])} · ${k==="s"?"$"+r[1]+"/night est.":r[1]?"$"+r[1]+" est.":"Free"}</div><a class="sub" href="${link(r[0],k)}" target="_blank" rel="sponsored noopener" data-a="out" data-x="${E(r[0])}">View provider</a></div>${tid?`<button class="btn sm" data-a="addrec" data-k="${k}" data-x="${i}">Add to trip</button>`:""}</div>`}
+function dest(){const x=dd(S.d);return `<button class="btn alt sm" style="margin-top:12px" data-a="go" data-x="home">Back</button><div class="ph" style="background:linear-gradient(135deg,${x.g[0]},${x.g[1]});aspect-ratio:auto;height:170px;margin:12px 0;font-size:72px">${x.e}</div><h1>${x.n}, ${x.c}</h1><p>${x.why}</p><button class="btn alt sm" data-a="watch" data-x="${x.id}" aria-pressed="${WT.includes(x.id)}">${WT.includes(x.id)?"🔔 Season alerts on":"🔔 Notify me when it's in season"}</button><div>${x.tg.map(k=>`<span class="badge">${pl(k)}</span> `).join("")}</div><h3 style="margin:16px 0 8px">Things to explore in ${E(x.n)}</h3><div class="ac-row" style="flex-wrap:wrap">${K[x.id].map(k=>`<span class="ac">${ae(k)} ${al(k)}</span>`).join("")}</div>
+  <div class="two"><div><div class="box"><h3>Stays</h3>${x.s.map((_,i)=>row(x,"s",i,"USD",0)).join("")}</div><div class="box"><h3>Experiences</h3>${x.a.map((_,i)=>row(x,"a",i,"USD",0)).join("")}</div>${spons(x)}${months(x)}${safety(x)}${meetups(x)}${chatBox(x)}${meet(x)}</div>
+  <div class="box" style="align-self:start"><h3>At a glance</h3><div class="row"><span>Daily budget</span><b>about $${x.cost}</b></div><div class="row"><span>Seasons</span><b style="text-align:right">${x.w}</b></div><p class="note">Estimates only. Internet quality and safety are not rated here. Last reviewed Oct 2026.</p><button class="btn" style="width:100%;margin-top:8px" data-a="new" data-x="${x.id}">Plan a trip here</button><button class="btn alt" style="width:100%;margin-top:8px" data-a="cmpgo" data-x="${x.id}">Compare</button></div></div>`}
+function create(){const p=S.pre;return `<h1 style="margin-top:14px">Create a trip</h1><p class="sub">Only destination and purpose are required. Finish the rest later.</p><div class="box"><div class="f">
+  <label>Trip name<input id="n" placeholder="Optional"></label><label>Destination<select id="d"><option value="">Choose</option>${D.map(x=>`<option value="${x.id}" ${x.id===p?"selected":""}>${x.n}, ${x.c}</option>`).join("")}</select></label>
+  <label>Start date<input type="date" id="s" value=""></label><label>End date<input type="date" id="e"></label>
+  <label>Travelers<input type="number" id="tv" min="1" value="1"></label><label>Budget<input type="number" id="b" min="0" placeholder="Total amount"></label>
+  <label>Currency<select id="c">${Object.keys(RT).map(c=>`<option>${c}</option>`).join("")}</select></label><label>Purpose<select id="pu"><option value="">Choose</option>${P.slice(1).map(x=>`<option value="${x[0]}" ${x[0]===S.pf?"selected":""}>${x[1]}</option>`).join("")}</select></label>
+  <label>Travel style<select id="st"><option>No preference</option><option>Budget</option><option>Comfort</option><option>Active</option><option>Slow travel</option></select></label><label>Event or competition (sports)<input id="ev"></label><label class="w">Venue (sports)<input id="vn"></label><label class="w">Notes<textarea id="no" rows="2"></textarea></label></div>
+  <p id="er" class="warn"></p><button class="btn" data-a="make">Create trip</button></div>`}
+function journey(){const t=cur();if(!t)return `<div class="empty">Trip not found.</div>`;
+  const x=dd(t.did),days=dl(t),keys=[...days,"u"],bk=i=>days.includes(i.day)?i.day:"u",sum=y=>t.items.filter(i=>i.ty===y).reduce((a,i)=>a+(+i.cost||0),0);
+  const food=days.length?cv(x.cost*.35,t.c)*days.length*t.tv:0,pn=sum("stay")+sum("act")+sum("other")+food,rem=t.b-pn,over=t.b>0&&rem<0,pc=t.b>0?Math.min(100,pn/t.b*100):0;
+  const body=keys.map(k=>{const its=t.items.filter(i=>bk(i)===k);if(k==="u"&&!its.length&&days.length)return"";
+    return `<div class="day">${dn(k)}</div>${its.map(i=>`<div class="it"><div class="t"><b>${E(i.title)}</b> <span class="badge">${i.ty==="stay"?"Stay":i.ty==="act"?"Activity":"Note"}</span><div class="sub">${i.time?E(i.time)+" · ":""}${m(i.cost||0,t.c)}${i.url?` · <a href="${E(i.url)}" target="_blank" rel="sponsored noopener" data-a="out" data-x="${E(i.title)}">Link</a>`:""}</div></div><button data-a="mv" data-x="${i.id}" data-d="-1" aria-label="Move up">&#8593;</button><button data-a="mv" data-x="${i.id}" data-d="1" aria-label="Move down">&#8595;</button><button data-a="rm" data-x="${i.id}" aria-label="Remove">&#10005;</button></div>`).join("")||`<div class="sub">Nothing planned yet.</div>`}`}).join("");
+  const ai=x.a.map((r,i)=>i).sort((a,b)=>(x.a[b][2]===t.p)-(x.a[a][2]===t.p));
+  return `<button class="btn alt sm" style="margin-top:12px" data-a="go" data-x="trips">My Trips</button><h1 style="margin-top:12px">${E(t.n)}</h1><div class="sub">${x.n}, ${x.c} · ${pl(t.p)} · ${t.tv} traveler${t.tv>1?"s":""} · Saved on this device</div>
+  ${t.p==="sports"&&(t.ev||t.vn)?`<div class="box" style="margin-top:12px"><b>Event:</b> ${E(t.ev)||"Not set"} · <b>Venue:</b> ${E(t.vn)||"Not set"}<div class="sub">Add competition times as itinerary notes to keep them visible.</div></div>`:""}
+  <div class="two"><div><div class="box"><h3>Itinerary</h3>${days.length?"":`<p class="sub">Add dates to generate daily plans.</p>`}${body}</div>
+  <div class="box"><h3>Add to itinerary</h3><div class="f"><label class="w">Title<input id="it"></label><label>Day<select id="id">${keys.map(k=>`<option value="${k}">${dn(k)}</option>`).join("")}</select></label><label>Time<input type="time" id="itm"></label><label>Estimated cost (${t.c})<input type="number" id="ic" min="0"></label><label>Type<select id="ity"><option value="act">Activity</option><option value="stay">Stay</option><option value="other">Note or other</option></select></label></div><button class="btn sm" style="margin-top:10px" data-a="additem">Add item</button></div></div>
+  <div><div class="box"><h3>Budget</h3><div class="f"><label>Total (${t.c})<input type="number" data-f="b" value="${t.b||""}"></label><label>Travelers<input type="number" min="1" data-f="tv" value="${t.tv}"></label><label>Start<input type="date" data-f="s" value="${t.s}"></label><label>End<input type="date" data-f="e" value="${t.e}"></label></div>
+  <div class="meter ${over?"over":""}"><div style="width:${pc}%"></div></div><div class="row"><span>Stays</span><b>${m(sum("stay"),t.c)}</b></div><div class="row"><span>Activities</span><b>${m(sum("act"),t.c)}</b></div><div class="row"><span>Other</span><b>${m(sum("other"),t.c)}</b></div><div class="row"><span>Food and daily (est.)</span><b>${m(food,t.c)}</b></div><div class="row"><b>Planned</b><b>${m(pn,t.c)}</b></div><div class="row"><b>Remaining</b><b class="${over?"warn":""}">${t.b?m(rem,t.c):"Set a budget"}</b></div>${over?`<p class="warn">Planned spending is over your budget.</p>`:""}<p class="note">Excludes flights, insurance and visas unless you add them. Curated USD estimates are converted at approximate fixed rates.</p></div>
+  <div class="box"><h3>Ideas for ${pl(t.p)}</h3><label class="sub">Add activities to <select id="rd" style="width:auto">${keys.map(k=>`<option value="${k}">${dn(k)}</option>`).join("")}</select></label>${x.s.map((_,i)=>row(x,"s",i,t.c,1)).join("")}${ai.map(i=>row(x,"a",i,t.c,1)).join("")}</div></div></div>`}
+function trs(){const fl=fav.map(k=>find(k));return `<h1 style="margin-top:14px">My Trips</h1><p class="sub">Trips are stored in this browser on this device. Cross-device sync needs an account, which isn’t available yet.</p>
+  ${trips.length?`<div class="two" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">${trips.map(t=>`<div class="box"><h3>${E(t.n)}</h3><div class="sub">${dd(t.did).n} · ${pl(t.p)} · ${t.items.length} items</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn sm" data-a="open" data-x="${t.id}">Open</button><button class="btn alt sm" data-a="del" data-x="${t.id}">${S.cd===t.id?"Confirm delete":"Delete"}</button></div></div>`).join("")}</div>`:`<div class="empty">No trips yet.<br><br><button class="btn" data-a="new">Create your first trip</button></div>`}
+  ${stay()}${fl.length?`<h2 style="margin:20px 0 8px">Saved options</h2><div class="box">${fl.map(f=>`<div class="rec"><div><b>${E(f.r[0])}</b><div class="sub">${f.x.n} · ${f.k==="s"?"Stay":"Experience"}</div></div><a href="${link(f.r[0],f.k)}" target="_blank" rel="sponsored noopener" data-a="out" data-x="${E(f.r[0])}">View provider</a></div>`).join("")}</div>`:""}`}
+let DB=null,UID=null,OWN=false,tm;S.inq=[];S.ls=[];
+async function loadLs(){try{const s=await DB.collection("listings").get();S.ls=s.docs.map(d=>({id:d.id,...d.data()})).filter(l=>l.active)}catch(e){}}
+async function loadInq(){try{const s=await DB.collection("inquiries").get();S.inq=s.docs.map(d=>({id:d.id,...d.data()}))}catch(e){S.inq=[]}render()}
+function cloud(){if(!DB||!UID)return;clearTimeout(tm);tm=setTimeout(()=>{DB.collection("data/users/"+UID).doc("trips").set({list:JSON.stringify(trips),fav:JSON.stringify(fav)}).catch(()=>{})},800)}
+async function boot(){try{if(typeof claude==="undefined")return;const u=await claude.use("user"),d=await claude.use("db");if(!u||!d)return;DB=d;UID=await u.id();OWN=u.isOwner();if(OWN)$("#adm").style.display="";await loadLs();try{const g=await DB.collection("data/users/"+UID).doc("trips").get();if(g.exists){const r=g.data();JSON.parse(r.list||"[]").forEach(x=>{if(!trips.some(y=>y.id===x.id))trips.push(x)});fav=[...new Set([...fav,...JSON.parse(r.fav||"[]")])]}}catch(e){}render();cloud()}catch(e){}}
+const LT={s:"Stay",a:"Experience",g:"Gym or training",c:"Club or group",e:"Event or race",w:"Coworking",k:"Activity school"},TE={s:"🛏️",a:"✨",g:"🏋️",c:"👥",e:"🏟️",w:"💻",k:"🎓"};
+function locals(){try{return DB?[]:JSON.parse(localStorage.getItem("nl_partners")||"[]").map(q=>({...q,local:1}))}catch(e){return[]}}
+function sponsorList(){return[...S.ls,...locals()].filter(q=>String(q.u).startsWith("http"))}
+function sponsorRow(){const l=sponsorList().filter(q=>!S.act||q.k===S.act);if(!l.length)return"";
+  return `<section><div class="sh"><h2>Sponsored partners<small>Gyms, clubs, events and more. Paid placements are always labeled.</small></h2></div><div class="rail">${l.map(q=>{const d=dd(q.d)||D[0];return `<a class="card sc dc" href="${E(q.u)}" target="_blank" rel="sponsored noopener" data-a="out" data-x="${E(q.n)}" style="background:linear-gradient(135deg,${d.g[0]},${d.g[1]})"><span class="dc-e">${TE[q.t]||"✨"}</span><span class="dc-top"><i>${q.local?"Preview only":"Sponsored"}</i></span><span class="dc-bot"><span><strong>${E(q.n)}</strong><small>${LT[q.t]||"Experience"} · ${E(d.n)}</small></span><span class="dc-p"><strong>${q.p?"$"+E(q.p):""}</strong></span></span></a>`}).join("")}</div></section>`}
+function partnerBand(){return `<section class="box" style="margin-top:28px"><h2 style="margin:0 0 6px">Run a gym, club, coworking space or event?</h2><p class="sub">Reach remote workers and athletes planning a trip to your city. Every paid placement is labeled Sponsored.</p><div class="pk"><div><b>Listing</b><small>Appear on your city page and in your activity.</small></div><div><b>Featured</b><small>Shown first when people pick your activity.</small></div><div><b>City partner</b><small>Your name across one city page.</small></div></div><button class="btn" data-a="go" data-x="partner">Become a sponsor</button><span class="note" style="margin-left:10px">Pricing is not set yet.</span></section>`}
+function spons(x){const l=sponsorList().filter(q=>q.d===x.id);return l.length?`<div class="box"><h3>Sponsored</h3>${l.map(q=>`<div class="rec"><div><b>${E(q.n)}</b> <span class="badge sp">${q.local?"Preview only":"Sponsored"}</span><div class="sub">${LT[q.t]||"Experience"}${q.k&&ACT[q.k]?" · "+ae(q.k)+" "+al(q.k):""} · ${q.p?"$"+E(q.p)+" est.":"Price on request"}</div><a class="sub" href="${E(q.u)}" target="_blank" rel="sponsored noopener" data-a="out" data-x="${E(q.n)}">View provider</a></div></div>`).join("")}</div>`:""}
+function admin(){if(!OWN)return `<div class="empty">Admin is only available to the page owner.</div>`;return `<h1 style="margin-top:14px">Sponsored listing inquiries</h1><p class="sub">Review each one before approving. Approved listings appear as Sponsored on the destination page.</p>${S.inq.length?[...S.inq].sort((a,b)=>b.at-a.at).map(q=>`<div class="box"><b>${E(q.n)}</b> <span class="badge">${E(q.status)}</span><div class="sub">${E((dd(q.d)||{}).n)} · ${LT[q.t]||"Experience"}${q.k&&ACT[q.k]?" · "+al(q.k):""} · ${q.p?"$"+E(q.p):"No price"} · ${E(q.e)}</div>${String(q.u).startsWith("http")?`<a href="${E(q.u)}" target="_blank" rel="noopener">${E(q.u)}</a>`:""}${q.status==="pending"?`<div style="display:flex;gap:8px;margin-top:10px"><button class="btn sm" data-a="appr" data-x="${q.id}">Approve</button><button class="btn alt sm" data-a="rej" data-x="${q.id}">Reject</button></div>`:""}</div>`).join(""):`<div class="empty">No inquiries yet.</div>`}`}
+function roll(){const mo=new Date().getMonth()+1,g=D.filter(d=>BM[d.id].includes(mo)),l=g.length?g:D,
+ a=l.map(d=>({a:"dest",x:d.id,bg:`linear-gradient(135deg,${d.g[0]},${d.g[1]})`,e:d.e,t:d.n,s:(g.length?"Good in "+MN[mo-1]:"Popular")+" \u00b7 about $"+d.cost+"/day"})),
+ H={remote:"Work from anywhere",sports:"Follow the event",business:"Meetings and venues",adventure:"Trails and trips",leisure:"Slow down"},
+ b=P.slice(1,6).map(p=>({a:"pf",x:p[0],bg:"var(--chip)",e:p[2],t:p[1],s:H[p[0]]})),
+ row=(it,c)=>{const base=[...it,...it,...it];return `<div class="roll ${c}"><div class="rt">${[0,1].map(k=>base.map(i=>`<button class="tk" data-a="${i.a}" data-x="${i.x}" ${k?'tabindex="-1" aria-hidden="true"':""}><span class="e" style="background:${i.bg}">${i.e}</span><span><b>${i.t}</b><small>${i.s}</small></span></button>`).join("")).join("")}</div></div>`};
+ return `<div class="rl">Good to go in ${MN[mo-1]}</div>`+row(a,"")}
+function months(x){return `<div class="box"><h3>Best months</h3><div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px">${MN.map((m,i)=>`<div title="${m}" aria-label="${m}${BM[x.id].includes(i+1)?", good":""}" style="text-align:center;padding:8px 0;border-radius:8px;font-size:12px;${BM[x.id].includes(i+1)?"background:var(--acc);color:#fff;font-weight:700":"background:var(--chip);color:var(--mut)"}">${m[0]}</div>`).join("")}</div><p class="note">Highlighted months are typically drier or more comfortable. A curated seasonal guide, not a forecast. Reviewed Oct 2026.</p></div>`}
+function safety(x){const s=SF[x.id],o=(u,t)=>`<div class="rec"><a href="${u}" target="_blank" rel="noopener" data-a="out" data-x="safety ${x.n}">${t}</a></div>`;return `<div class="box"><h3>Safety and entry advice</h3><p class="sub">We don’t rate safety ourselves. Read current official advice before you book, and again before you travel.</p>${s==="united-kingdom"?"":o("https://www.gov.uk/foreign-travel-advice/"+s,"UK government travel advice")}${o("https://travel.gc.ca/destinations/"+s,"Government of Canada travel advice")}<p class="note">Official sources only. Advice changes often. Link list reviewed Oct 2026.</p></div>`}
+const CHAT={/* add your own free city groups here, e.g. lagos:"https://t.me/yourgroup" */};
+const NM={run:"Group run",surf:"Surf session",food:"Food crawl",cowork:"Coworking day",hike:"Weekend hike",climb:"Climbing session",football:"Pickup football",yoga:"Sunrise yoga",gym:"Training session",nightlife:"Music night",culture:"City walk",art:"Gallery visit",market:"Market walk",bike:"Group ride",beach:"Beach day",dive:"Dive and snorkel day",water:"Boat trip",safari:"Wildlife day trip",martial:"Open class",ski:"Ski day",golf:"Golf round",events:"Live event night"};
+const SLOT=["Sat 07:30","Wed 18:30","Sun 10:00"];
+function meetups(x){const ev=K[x.id].slice(0,3).map((k,i)=>({id:x.id+"|m|"+i,t:(NM[k]||al(k)+" meetup")+" in "+x.n,w:SLOT[i],k}));
+  return `<div class="box" id="meetups"><h3>Meetups in ${E(x.n)} <span class="badge">Sample events</span></h3>${ev.map(m=>`<div class="rec" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span><b>${ae(m.k)} ${E(m.t)}</b><br><small>${m.w} · Public place, to be announced</small></span><button class="btn alt sm" data-a="rsvp" data-x="${m.id}">${S.rsvp[m.id]?"You're interested":"I'm interested"}</button></div>`).join("")}<button class="btn alt sm" style="margin-top:10px" data-a="host">Host a meetup</button><p class="note">Sample events to show the layout. Real meetups arrive with accounts. Meet in public places.</p></div>`}
+function chatBox(x){const g=CHAT[x.id],o=(u,t,n)=>`<div class="rec"><a href="${u}" target="_blank" rel="noopener" data-a="out" data-x="chat ${x.n}">${t}</a>${n?`<br><small>${n}</small>`:""}</div>`;
+  return `<div class="box" id="community"><h3>Chat with people in ${E(x.n)}</h3>${g?o(g,"Nomad Lantern "+x.n+" group","Free to join"):`<div class="rec"><b>Nomad Lantern ${E(x.n)} group</b><br><small>Coming soon. Our own live chat opens with accounts.</small></div>`}${o("https://nomads.com","Nomads.com chat","Members only. Joining may need a paid membership.")}${o("https://nomadtable.app","Nomadtable","Find travel friends")}<p class="note">Third party sites. Nomad Lantern doesn’t run or moderate them.</p></div>`}
+function meet(x){const sl=x.n.toLowerCase().replace(" ","-"),o=(u,t)=>`<div class="rec"><a href="${u}" target="_blank" rel="noopener" data-a="out" data-x="meetup ${x.n}">${t}</a></div>`;return `<div class="box"><h3>Meet other travelers</h3>${o("https://nomads.com/"+sl,"Nomads.com page for "+x.n)}${o("https://nomads.com/meetups","Nomads.com meetups")}${o("https://nomadtable.app","Nomadtable: find travel friends")}<p class="note">Third party sites, some features need an account. Nomad Lantern doesn’t run or vouch for events. Meet in public places.</p></div>`}
+function partner(){return `<h1 style="margin-top:14px">Sponsored listings</h1><p class="sub">Promote your gym, club, event, coworking space, activity school or stay to remote workers and athletes planning a trip to your city. Every paid placement is labeled Sponsored, and each listing is reviewed before it goes live.</p><div class="two"><div class="box"><div class="f"><label>Business name<input id="pb" data-pv></label><label>Destination<select id="pd" data-pv>${D.map(d=>`<option value="${d.id}">${d.n}</option>`).join("")}</select></label><label>Listing type<select id="pt" data-pv>${Object.keys(LT).map(k=>`<option value="${k}">${LT[k]}</option>`).join("")}</select></label><label>Main activity<select id="pk" data-pv><option value="">Not specific</option>${Object.keys(ACT).map(k=>`<option value="${k}">${ae(k)} ${al(k)}</option>`).join("")}</select></label><label>Typical price (USD)<input id="pp" type="number" min="0" data-pv></label><label class="w">Booking or website link<input id="pu" type="url" placeholder="https://"></label><label class="w">Public contact (website, WhatsApp or Instagram)<input id="pe"></label></div><p id="pr" class="note">Submissions go to our review queue when you’re signed in. During the pilot, inquiries are visible to other signed-in viewers, so share only public contact details. Placement pricing isn’t set yet.</p><button class="btn" data-a="psend">Submit for review</button></div><div><b>Preview</b><div id="pv" style="margin-top:10px"></div></div></div>`}
+function prev(){const el=$("#pv");if(!el)return;const x=dd($("#pd").value),n=$("#pb").value||"Your business name",p=+$("#pp").value||0,s=$("#pt").value==="s";el.innerHTML=`<div class="card" style="pointer-events:none"><div class="ph" style="background:linear-gradient(135deg,${x.g[0]},${x.g[1]})">${TE[$("#pt").value]||"✨"}<span class="tag">Sponsored</span></div><b>${E(n)}</b><span class="sub">${s?"$"+p+" per night":p?"$"+p:"Free"} est. · ${x.n}</span></div>`}
+function compare(){const sel=S.cmp,xs=sel.map(dd),R=[["Country",x=>x.c],["Daily budget (est.)",x=>"about $"+x.cost],["Typical weather",x=>x.w],["Best for",x=>x.tg.map(pl).join(", ")],["Stays from",x=>"$"+Math.min(...x.s.map(s=>s[1]))+"/night est."],[S.pf==="all"?"Purpose match":"Matches "+pl(S.pf),x=>S.pf==="all"?"Pick a purpose tab":x.tg.includes(S.pf)?"Yes":"No"]];
+  return `<h1 style="margin-top:14px">Compare destinations</h1><p class="sub">Pick up to 3. Costs are indicative estimates, not live prices.</p><div style="margin-top:10px">${D.map(d=>`<button class="pill" style="margin:0 6px 6px 0;${sel.includes(d.id)?"background:var(--fg);color:var(--bg)":""}" data-a="cmp" data-x="${d.id}">${d.e} ${d.n}</button>`).join("")}</div><div class="box" style="overflow-x:auto;margin-top:12px"><table style="width:100%;border-collapse:collapse;min-width:420px"><tr><th></th>${xs.map(x=>`<th style="text-align:left;padding:8px">${x.e} ${x.n}</th>`).join("")}</tr>${R.map(r=>`<tr style="border-top:1px solid var(--line)"><td class="sub" style="padding:8px">${r[0]}</td>${xs.map(x=>`<td style="padding:8px">${r[1](x)}</td>`).join("")}</tr>`).join("")}<tr style="border-top:1px solid var(--line)"><td></td>${xs.map(x=>`<td style="padding:8px"><button class="btn sm" data-a="new" data-x="${x.id}">Plan here</button></td>`).join("")}</tr></table></div>`}
+function stay(){const by={};trips.forEach(t=>{const n=dl(t).length;if(n){const c=dd(t.did).c;by[c]=(by[c]||0)+n}});const k=Object.keys(by);if(!k.length)return"";return `<h2 style="margin:20px 0 8px">Days planned by country</h2><div class="box">${k.map(c=>`<div class="row"><span>${c}</span><b>${by[c]} days ${by[c]>=150?`<span class="warn">Approaching 183</span>`:""}</b></div>`).join("")}<p class="note">Adds up the dates on your trips. Many countries use 183 days as a tax residency test, but rules vary. Check with a tax professional.</p></div>`}
+function partnerOld(){return `<h1 style="margin-top:14px">Partner with Nomad Lantern</h1><p class="sub">Coworking spaces, stays and tour operators can reach travelers planning trips to their city. Paid placements are always labeled Sponsored.</p><div class="box" style="margin-top:12px"><div class="f"><label>Business name<input id="pb"></label><label>Type<select id="pt"><option>Stay</option><option>Coworking</option><option>Tour or activity</option><option>Other</option></select></label><label>City<input id="pc"></label><label>Email<input id="pe" type="email"></label></div><p id="pr" class="note">Demo form: inquiries are saved in this browser only and aren’t sent anywhere yet.</p><button class="btn" data-a="psend">Submit inquiry</button></div>`}
+function about(){return `<h1 style="margin-top:14px">About Nomad Lantern</h1><div class="box" style="margin-top:14px"><p>Nomad Lantern helps remote workers, athletes, entrepreneurs and explorers choose a destination, plan around purpose and budget, and organize the trip day by day.</p><h3>Disclosures</h3><p>Some links go to partner sites and may earn us a commission. Sponsored placements are labeled. Prices are curated estimates, not confirmed live prices. Weather is typical seasonal conditions, not a forecast.</p><h3>Privacy</h3><p>Trips, saved options and basic usage events stay in your browser. No personal data is collected in this version.</p><button class="btn" data-a="go" data-x="partner">Partner with us</button></div>`}
+document.addEventListener("change",e=>{if(e.target.id==="bc"){S.cur=e.target.value;render()}});
+function render(){$("#bc").value=S.cur;$("#app").innerHTML={home,dest,create,journey,trips:trs,about,compare,partner,admin}[S.v]();$("#bar").style.display=S.v==="home"?"flex":"none";if(S.v==="partner")prev();
+  $("#tabs").innerHTML=`<button class="${S.act?"":"on"}" data-a="act" data-x=""><span>✨</span>All</button>`+Object.keys(ACT).map(k=>[k,D.filter(d=>K[d.id].includes(k)).length]).sort((x,y)=>y[1]-x[1]).map(c=>`<button class="${S.act===c[0]?"on":""}" data-a="act" data-x="${c[0]}"><span>${ae(c[0])}</span>${al(c[0])}</button>`).join("");$("#tabs .on")?.scrollIntoView({inline:"center",block:"nearest"});$("#nt").textContent="My Trips"+(trips.length?" ("+trips.length+")":"")}
+const go=v=>{S.v=v;S.cd=null;render();window.scrollTo(0,0);if(v==="admin"&&DB)loadInq()};
+const add=(t,o)=>{t.items.push({id:Date.now()+Math.random(),...o});sv();render();track("trip_item_added")};
+function openRec(ky){const{x,k,r}=find(ky),d=$("#dlg");d.innerHTML=`<div style="position:relative"><button class="close" aria-label="Close" data-a="cl">&#10005;</button><div class="mh" style="background:linear-gradient(135deg,${x.g[0]},${x.g[1]})">${k==="s"?"🛏️":pe(r[2])}</div></div><div class="mbd"><h2>${E(r[0])}</h2><div class="sub">${x.n}, ${x.c} · <span class="badge ${r[3]?"sp":""}">${r[3]?"Sponsored":"Curated"}</span></div><div>${k==="s"?E(r[2]):pl(r[2])} · ${k==="s"?"$"+r[1]+" per night":r[1]?"$"+r[1]:"Free"} (estimate)</div><a href="${link(r[0],k)}" target="_blank" rel="sponsored noopener" data-a="out" data-x="${E(r[0])}">View provider</a><button class="btn" data-a="new" data-x="${x.id}">Plan a trip here</button></div>`;d.showModal()}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,x=b.dataset.x;
+  if(a==="go")go(x);else if(a==="theme"){const r=document.documentElement;r.dataset.theme=getComputedStyle(r).colorScheme==="dark"?"light":"dark"}
+  else if(a==="pf"){S.pf=x;if(S.v!=="home")S.v="home";render()}
+  else if(a==="act"){S.act=x===S.act?"":x;if(S.v!=="home")S.v="home";render();window.scrollTo({top:0,behavior:"smooth"})}
+  else if(a==="sc")$("#"+x).scrollBy({left:b.dataset.d*600,behavior:"smooth"});
+  else if(a==="search"){S.qs=$("#q").value.trim().toLowerCase();S.cur=$("#bc").value;S.bud=(Number($("#bd").value)||0)/RT[S.cur];const n=D.filter(d=>(!S.qs||(d.n+" "+d.c+" "+d.why+" "+d.w+" "+d.tg.map(pl).join(" ")+" "+actText(d)).toLowerCase().includes(S.qs))).length;if(!n){S.qs="";render();return toast("Nothing matches that yet. Try a city or an idea like beach or remote.")}render();$("#r1")&&$("#r1").scrollIntoView({behavior:"smooth",block:"center"});toast(S.bud?(D.some(d=>d.cost*30<=S.bud)?D.filter(d=>d.cost*30<=S.bud).length+" cities fit "+money(S.bud)+" / month":"Nothing fits "+money(S.bud)+" / month yet. Showing the closest"):"Showing "+n+" destination"+(n>1?"s":""))}
+  else if(a==="dest"){S.d=x;S.v="dest";track("destination_viewed",x);render();window.scrollTo(0,0)}
+  else if(a==="rsvp"){S.rsvp[x]=!S.rsvp[x];b.textContent=S.rsvp[x]?"You're interested":"I'm interested";svn();if(S.rsvp[x]){const[c,,i]=x.split("|"),k=K[c][+i];note("rsvp|"+x,"You're interested in "+(NM[k]||al(k)+" meetup")+" in "+dd(c).n+". Reminder set for "+SLOT[+i]+".")}}
+  else if(a==="bell"){const pn=$("#np");pn.hidden=!pn.hidden;$("#bell").setAttribute("aria-expanded",String(!pn.hidden));if(!pn.hidden){paintPanel();NT.forEach(n=>n.read=true);svn();$("#bn").hidden=true}}
+  else if(a==="nclear"){NT=[];svn();paintBell()}
+  else if(a==="watch"){WT=WT.includes(x)?WT.filter(w=>w!==x):[...WT,x];svn();if(WT.includes(x)){note("w|"+x+"|"+Date.now(),"We'll tell you when "+dd(x).n+" is in season.");checkAlerts()}else toast("Season alerts off for "+dd(x).n);render()}
+  else if(a==="host")toast("Hosting opens with accounts. For now, host on Nomads.com or Meetup.")
+  else if(a==="chat"){S.d=x;S.v="dest";render();window.scrollTo(0,0);setTimeout(()=>$("#community")&&$("#community").scrollIntoView({behavior:"smooth",block:"center"}),80)}
+  else if(a==="heart"){e.stopPropagation();fav=fav.includes(x)?fav.filter(f=>f!==x):[...fav,x];sv();b.classList.toggle("on")}
+  else if(a==="rec")openRec(x);else if(a==="cl")$("#dlg").close();
+  else if(a==="new"){$("#dlg").close();S.pre=x||"";S.v="create";track("trip_create_started");render();window.scrollTo(0,0)}
+  else if(a==="make"){const d=$("#d").value,p=$("#pu").value;if(!d||!p){$("#er").textContent="Choose a destination and a purpose to continue.";return}
+    const dx=dd(d),t={id:"t"+Date.now(),n:$("#n").value.trim()||"Trip to "+dx.n,did:d,s:$("#s").value,e:$("#e").value,tv:Math.max(1,+$("#tv").value||1),b:+$("#b").value||0,c:$("#c").value,p,st:$("#st").value,no:$("#no").value,ev:$("#ev").value,vn:$("#vn").value,items:[]};
+    trips.unshift(t);sv();S.t=t.id;S.v="journey";track("trip_created",d);if(t.s&&t.e)track("trip_dates_added");render()}
+  else if(a==="open"){S.t=x;S.v="journey";track("trip_reopened");render()}
+  else if(a==="del"){if(S.cd===x){trips=trips.filter(t=>t.id!==x);sv();S.cd=null}else S.cd=x;render()}
+  else if(a==="appr"||a==="rej"){const q=S.inq.find(i=>i.id===x);if(!q||!OWN)return;(async()=>{try{await DB.collection("inquiries").doc(x).update({status:a==="appr"?"approved":"rejected"});if(a==="appr"){await DB.collection("listings").doc(x).set({n:q.n,d:q.d,t:q.t,k:q.k||"",p:q.p,u:q.u,active:true});await loadLs()}await loadInq();toast(a==="appr"?"Approved":"Rejected")}catch(e){toast("Could not update. Check permissions.")}})()}
+  else if(a==="cmp"){const i=S.cmp.indexOf(x);if(i>=0){if(S.cmp.length>1)S.cmp.splice(i,1)}else{if(S.cmp.length>=3)S.cmp.shift();S.cmp.push(x)}track("destination_compared",x);render()}
+  else if(a==="cmpgo"){S.cmp=[x,...S.cmp.filter(c=>c!==x)].slice(0,3);S.v="compare";track("destination_compared",x);render();window.scrollTo(0,0)}
+  else if(a==="psend"){const n=$("#pb").value.trim(),em=$("#pe").value.trim(),u=$("#pu").value.trim();if(!n||!em||!u.startsWith("http"))return $("#pr").textContent="Add a business name, a public contact and a link starting with https://";const q={n,d:$("#pd").value,t:$("#pt").value,k:$("#pk").value,p:$("#pp").value,u,e:em};if(DB){DB.collection("inquiries").doc("q"+Date.now()).set({...q,at:Date.now(),status:"pending"}).then(()=>{toast("Submitted for review.");go("home")}).catch(()=>toast("Could not submit. Try again."));return}try{const l=ld("nl_partners","[]");l.push(q);localStorage.setItem("nl_partners",JSON.stringify(l))}catch(e){}toast("Saved in this browser as a preview. It is not live.");go("home")}
+  else if(a==="out")track("partner_link_clicked",x);
+  else if(a==="additem"){const t=cur(),ti=$("#it").value.trim();if(!ti)return $("#it").focus();add(t,{title:ti,day:$("#id").value,time:$("#itm").value,cost:+$("#ic").value||0,ty:$("#ity").value})}
+  else if(a==="addrec"){const t=cur(),x2=dd(t.did),k=b.dataset.k,r=(k==="s"?x2.s:x2.a)[+x],days=dl(t);
+    add(t,{title:r[0],day:k==="s"?(days[0]||"u"):$("#rd").value,time:"",cost:Math.round(cv(r[1],t.c)*(k==="s"?Math.max(1,days.length-1):1)),ty:k==="s"?"stay":"act",url:link(r[0],k)})}
+  else if(a==="rm"){const t=cur();t.items=t.items.filter(i=>String(i.id)!==x);sv();render()}
+  else if(a==="mv"){const t=cur(),i=t.items.findIndex(i=>String(i.id)===x),dy=+b.dataset.d,days=dl(t),bk=q=>days.includes(q.day)?q.day:"u";let j=i+dy;
+    while(j>=0&&j<t.items.length&&bk(t.items[j])!==bk(t.items[i]))j+=dy;if(j<0||j>=t.items.length)return;[t.items[i],t.items[j]]=[t.items[j],t.items[i]];sv();render()}});
+document.addEventListener("change",e=>{const f=e.target.dataset.f;if(!f)return;const t=cur(),v=e.target.value;t[f]=["b","tv"].includes(f)?Math.max(f==="tv"?1:0,+v||0):v;if((f==="s"||f==="e")&&t.s&&t.e)track("trip_dates_added");sv();render()});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList.contains("card"))e.target.click();if(e.key==="Enter"&&e.target.id==="q")document.querySelector(".go").click()});
+document.addEventListener("change",e=>{if(e.target.id==="mo"){S.mo=+e.target.value;track("when_to_go_filtered",S.mo);render()}});
+document.addEventListener("input",e=>{if(e.target.dataset.pv!==undefined)prev()});
+document.addEventListener("click",e=>{const m=$("#mn");if(!m)return;if(e.target.closest("#mb")){m.hidden=!m.hidden;$("#mb").setAttribute("aria-expanded",String(!m.hidden))}else{m.hidden=true;$("#mb").setAttribute("aria-expanded","false")}});
+$("#dlg").onclick=e=>{if(e.target.id==="dlg")e.target.close()};
+$("#cl").innerHTML=D.map(d=>`<option value="${d.n}">`).join("");
+
+const rd=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||"null")??d}catch(e){return d}};
+let NT=rd("nl_notes",[]),WT=rd("nl_watch",[]);S.rsvp=rd("nl_rsvp",{});
+function svn(){try{localStorage.setItem("nl_notes",JSON.stringify(NT.slice(0,40)));localStorage.setItem("nl_watch",JSON.stringify(WT));localStorage.setItem("nl_rsvp",JSON.stringify(S.rsvp))}catch(e){}}
+const ago=t=>{const m=Math.round((Date.now()-t)/60000);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago"};
+function note(id,m,silent){if(NT.some(n=>n.id===id))return false;NT.unshift({id,m,at:Date.now(),read:false});svn();paintBell();if(!silent)toast(m);return true}
+function paintPanel(){$("#np").innerHTML=`<div class="nph"><b>Notifications</b>${NT.length?`<button data-a="nclear">Clear</button>`:""}</div>`+(NT.length?NT.slice(0,12).map(n=>`<div class="ni ${n.read?"":"new"}">${E(n.m)}<small>${ago(n.at)}</small></div>`).join(""):`<p class="note" style="padding:12px">Nothing yet. Say you're interested in a meetup, or tap Notify me on a city page.</p>`)+`<p class="note" style="padding:8px 12px">These appear when you open the site. Alerts while it's closed need accounts.</p>`}
+function paintBell(){const u=NT.filter(n=>!n.read).length,b=$("#bn");b.textContent=u>9?"9+":u;b.hidden=!u||!$("#np").hidden;if(!$("#np").hidden)paintPanel()}
+const DAYS={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+function occ(slot,now){const[d,t]=slot.split(" "),[h,mi]=t.split(":").map(Number),o=new Date(now);o.setHours(h,mi,0,0);o.setDate(o.getDate()+((DAYS[d]-now.getDay()+7)%7));if(o<now)o.setDate(o.getDate()+7);return o}
+function checkAlerts(now=new Date()){
+  Object.keys(S.rsvp).filter(k=>S.rsvp[k]).forEach(k=>{const[c,,i]=k.split("|"),x=dd(c);if(!x||K[c][+i]==null)return;const kk=K[c][+i],o=occ(SLOT[+i],now);if(o-now<=864e5)note("rem|"+k+"|"+o.toDateString(),"Reminder: "+(NM[kk]||al(kk)+" meetup")+" in "+x.n+", "+SLOT[+i]+" (sample event)",true)});
+  WT.forEach(c=>{const x=dd(c),mo=now.getMonth()+1,nx=mo%12+1;if(!x)return;if(BM[c].includes(mo))note("sea|"+c+"|"+now.getFullYear()+"-"+mo,"Good time to visit "+x.n+" now.",true);else if(BM[c].includes(nx))note("sea|"+c+"|"+now.getFullYear()+"-"+mo+"n","Good season in "+x.n+" starts next month.",true)});
+  paintBell()}
+document.addEventListener("click",e=>{if(!e.target.closest("#np,#bell")&&!$("#np").hidden){$("#np").hidden=true;$("#bell").setAttribute("aria-expanded","false")}});
+
+// Live data from Supabase (public read only). If anything fails, the built-in sample data stays in use.
+const SB="https://zfahnfgdamquccuoqqru.supabase.co",SBK="sb_publishable_0B9j-VYToS4smiyR_MFSJw_DimQZcFn";let SRC="built-in sample data";
+async function sbGet(t,qs){const r=await fetch(SB+"/rest/v1/"+t+"?"+qs,{headers:{apikey:SBK}});if(!r.ok)throw new Error(t+" "+r.status);return r.json()}
+const TYPE={stay:"s",experience:"a",gym:"g",club:"c",event:"e",coworking:"w",school:"k"};
+async function loadRemote(){
+  try{
+    const[ac,ds,da,ls]=await Promise.all([sbGet("activities","select=*"),sbGet("destinations","select=*&published=eq.true&order=name"),sbGet("destination_activities","select=*"),sbGet("listings","select=*&published=eq.true")]);
+    if(!ds.length||!ac.length)throw new Error("empty");
+    const nA={},nK={},nB={},nS={};ac.forEach(a=>nA[a.key]=[a.label,a.emoji]);
+    const nD=ds.map(r=>{nK[r.id]=[];nB[r.id]=r.best_months||[];nS[r.id]=r.safety_slug||"";return{id:r.id,n:r.name,c:r.country,e:r.emoji||"📍",g:[r.color_a||"#555",r.color_b||"#222"],cost:Number(r.cost_per_day),w:r.weather||"",tg:r.purposes||[],why:r.why||"",s:[],a:[]}});
+    const pos={};D.forEach((d,i)=>pos[d.id]=i);nD.sort((a,b)=>(pos[a.id]??999)-(pos[b.id]??999)||a.n.localeCompare(b.n));const by={};nD.forEach(d=>by[d.id]=d);
+    da.forEach(l=>{if(nK[l.destination_id]&&nA[l.activity_key])nK[l.destination_id].push(l.activity_key)});
+    ls.forEach(l=>{const d=by[l.destination_id];if(!d)return;(l.kind==="stay"?d.s:d.a).push([l.name,Number(l.price)||0,l.note||""])});
+    D.length=0;D.push(...nD);[[ACT,nA],[K,nK],[BM,nB],[SF,nS]].forEach(([o,n])=>{Object.keys(o).forEach(k=>delete o[k]);Object.assign(o,n)});
+    SRC="live database";
+    try{const sp=await sbGet("sponsor_listings","select=*&status=eq.approved");S.ls=sp.map(q=>({id:q.id,n:q.business_name,d:q.destination_id,t:TYPE[q.type]||"a",k:q.activity_key||"",p:q.price==null?"":String(q.price),u:q.url,e:q.contact||""}))}catch(e){}
+    S.act="";render();checkAlerts()
+  }catch(e){console.warn("Using built-in sample data:",e.message)}
+}
+
+render();boot();checkAlerts();paintBell();loadRemote();
+</script>
+</body>
+</html>
